@@ -15,17 +15,16 @@ public class pt1 {
 
 	public static void main(String[] args) {
 
-
 		int opcio = 0;
-		System.out.println(
-				"1- Insertar\n2- Modificar\n3- Borrar\n4- Mostrar\n5- Salir\n----------------------\nIntrodueix una opció ");
+		imprimirMenu();
 
 		// Bucle para menú
+		
+		if (sc.hasNextInt()) {
 		while (true) {
-			if (sc.hasNextInt()) {
 				opcio = sc.nextInt();
-				while (opcio >= 1 && opcio <= 5) {
-					if(opcio==5) {
+				if (opcio >= 1 && opcio <= 5) {
+					if (opcio == 5) {
 						System.out.println("Hasta luego !");
 						break;
 					}
@@ -33,125 +32,128 @@ public class pt1 {
 					case 1:
 						introducirJuego();
 						jocs.put(nombre, precio);
-						System.out.println(
-								"1- Insertar\n2- Modificar\n3- Borrar\n4- Mostrar\n5- Salir\n----------------------\nIntrodueix una opció");
-						opcio=0;
+						imprimirMenu();
+						opcio = 0;
 						break;
 					case 2:
-						if(!jocs.isEmpty()) {
+						if (!jocs.isEmpty()) {
 							modificarJuego();
-						}
-						else {
+						} else {
 							System.out.println("ERROR: no hay ningun juego");
 						}
-						opcio=0;
+						opcio = 0;
 						break;
 					case 3:
-						if(!jocs.isEmpty()) {
+						if (!jocs.isEmpty()) {
 							borrarJuego();
-						}
-						else {
+						} else {
 							System.out.println("ERROR: no hay ningun juego para mostrar");
 						}
-						opcio=0;
+						opcio = 0;
+						imprimirMenu();
+
 						break;
 					case 4:
-						if(!jocs.isEmpty()) {
+						if (!jocs.isEmpty()) {
 							mostrarJuegos();
-						}
-						else {
+						} else {
 							System.out.println("ERROR: no hay ningun juego");
+							imprimirMenu();
 						}
-						opcio=0;
+						opcio = 0;
+						imprimirMenu();
 						break;
 					case 5:
-						opcio=5;
+						opcio = 5;
 						break;
-						
 					}
-					
-					
-				} 
-				if(opcio==5) {
+
+				} else {
+					imprimirMenu();
+				}
+				if (opcio == 5) {
 					break;
 				}
-			} 	
+			} 
+		}
+		else {
+			imprimirMenu();
+			sc.nextLine();
 		}
 
 	}
 
+	public static void imprimirMenu() {
+		System.out.println(
+				"1- Insertar\n2- Modificar\n3- Borrar\n4- Mostrar\n5- Salir\n----------------------\nIntrodueix una opció");
+	}
+
 	private static void borrarJuego() {
-		boolean joc=false;
-		System.out.println("Que juego quieres modificar? introduce el nombre");
-		nombre=sc.nextLine();
-		for(Iterator i=jocs.keySet().iterator(); i.hasNext();){ 
-			String k=(String)i.next(); 
-			if(k.toLowerCase().equals(nombre)) {
-				joc=true;
-			}
-			
-			}
-		if(joc==false) {
-			System.out.println("El joc no existeix");
-		}
-		else {
-			System.out.println("Estas seguro de que lo deseas borrar? introduce S / N");
-			if(sc.nextLine().toLowerCase().equals("s")) {
-				jocs.remove(nombre);
+		boolean joc = false;
+		System.out.println("Que juego quieres borrar? introduce el nombre");
+		String sino="";
+		nombre = sc.next();
+		for (Iterator i = jocs.keySet().iterator(); i.hasNext();) {
+			String k = (String) i.next();
+			if (k.toLowerCase().equals(nombre)) {
+				System.out.println("Estas seguro de que lo deseas borrar? introduce S / N");
+				sino=sc.next();
+				if (sino.toLowerCase().equals("s")) {
+					jocs.remove(nombre);
+					sc.nextLine();
+					System.out.println("Juego borrado");
+				} else {
+					System.out.println("Juego no borrado");
+				}
 			}
 			else {
-				
+				System.out.println("El joc no existeix");
 			}
 		}
 	}
 
 	public static void modificarJuego() {
-		boolean joc=false;
+		boolean joc = false;
 		System.out.println("Que juego quieres modificar? introduce el nombre");
-		nombre=sc.nextLine();
-		for(Iterator i=jocs.keySet().iterator(); i.hasNext();){ 
-			String k=(String)i.next(); 
-			if(k.toLowerCase().equals(nombre)) {
-				joc=true;
+		nombre = sc.nextLine();
+		for (Iterator i = jocs.keySet().iterator(); i.hasNext();) {
+			String k = (String) i.next();
+			if (k.toLowerCase().equals(nombre)) {
+				joc = true;
 			}
-			
-			}
-		if(joc==false) {
-			System.out.println("El joc no existeix");
+
 		}
-		else {
+		if (joc == false) {
+			System.out.println("El joc no existeix");
+		} else {
 			System.out.println("Introdueix el nou preu");
 			precio = sc.nextFloat();
 			jocs.put(nombre, precio);
 		}
 
 	}
+
 	public static void mostrarJuegos() {
-		String k="";
-		Float v=0f;
-		
-		for(Iterator i=jocs.keySet().iterator(); i.hasNext();){ 
-			 k=(String)i.next(); 
-			
-			}
-		for(Iterator i=jocs.values().iterator(); i.hasNext();){ 
-			 v=(Float)i.next(); 
-				System.out.println(k+" "+v);
-			}
+		String key = "";
+		Iterator it = jocs.keySet().iterator();
+
+		while (it.hasNext()) {
+			key = (String) it.next();
+			System.out.println(key + " : " + jocs.get(key));
+		}
 	}
 
 	public static void introducirJuego() {
-		
-			System.out.println("Introduce el nombre del videjuego");
-			sc.next();
-			nombre = sc.nextLine();
-			System.out.println("Introduce el precio del videjuego (decimales con ,)");
-			while (true) {
+		System.out.println("Introduce el nombre del videjuego");
+		nombre = sc.next();
+		System.out.println("Introduce el precio del videjuego (decimales con ,)");
+		while (true) {
 			if (!sc.hasNextFloat()) {
 				sc.next();
 				System.out.println("Introdueix decimals amb ,");
 			} else {
 				precio = sc.nextFloat();
+				jocs.put(nombre, precio);
 				break;
 			}
 		}
