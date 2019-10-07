@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class Pt3 {
@@ -91,17 +92,42 @@ public class Pt3 {
 		}
 		byte arrayByte[]=array.toString().getBytes();
 		fos.write(arrayByte);
+		backupFichero();
 		leerFichero();
+	}
+
+	public static void backupFichero() throws IOException {
+		FileInputStream fis = new FileInputStream(f);
+		File fBack = new File("binariBack.dat");
+		FileOutputStream fos = new FileOutputStream(fBack);
+
+		int valor=fis.read();
+        while(valor!=-1){
+            fos.write(valor);
+            valor=fis.read();
+        }
 	}
 
 	public static void leerFichero() throws IOException {
 		 FileInputStream fis = new FileInputStream(f);
-		 
+		 String personita = null;
 		 int valor=fis.read();
          while(valor!=-1){
-             System.out.print((char)valor);
+             personita+=(char)valor;
              valor=fis.read();
          }
+         personita=Arrays.toString(personita.split(","));
+         
+         int i=0;
+         while(i<=personita.length()) {
+        	 personita=personita.replace("[", "");
+        	 personita=personita.replace("]", "");
+        	 personita=personita.replace("null", "");
+        	 personita=personita.replace("Persona", "");
+        	 i++;
+         }
+
+         System.out.println(personita);
 	}
 
 }
