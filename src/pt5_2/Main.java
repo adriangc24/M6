@@ -29,26 +29,22 @@ public class Main {
 	static Scanner sc = new Scanner(System.in);
 	static int opcion;
 	static Document doc;
-	static Curs c = new Curs();
-	static Modul m = new Modul();
-	static File file = new File("cursos.xml");
+	static File file = new File("cursosexemple.xml");
 	static DocumentBuilder dBuilder;
-	//static Element alumnes, alumne, tutor, cursos, curs, moduls, modul, profes, profe, ufs, uf, titol;
-	public static void main(String[] args)
-			throws ParserConfigurationException, IOException, TransformerException {
+
+	public static void main(String[] args) throws ParserConfigurationException, IOException, TransformerException {
 
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-		dBuilder = factory.newDocumentBuilder();		
-		try{ 
+		dBuilder = factory.newDocumentBuilder();
+		try {
 			doc = dBuilder.parse(file);
 			while (true) {
 				if (menu() == true) {
 					break;
-				} 
+				}
 			}
-		}
-		catch(Exception e) {
-	         doc = dBuilder.newDocument();
+		} catch (Exception e) {
+			doc = dBuilder.newDocument();
 			Element cursos = doc.createElement("cursos");
 			doc.appendChild(cursos);
 			while (true) {
@@ -59,10 +55,10 @@ public class Main {
 				} catch (SAXException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
-				} 
+				}
 			}
 		}
-		
+
 	}
 
 	public static void generarXml() throws TransformerException, IOException {
@@ -71,77 +67,46 @@ public class Main {
 
 		Source source = new DOMSource(doc);
 		StreamResult result = new StreamResult(file);
-        transformer.transform(source, result);
-        // Output to console for testing
-        StreamResult consoleResult = new StreamResult(System.out);
-        transformer.transform(source, consoleResult);
+		transformer.transform(source, result);
+		// Output to console for testing
+		StreamResult consoleResult = new StreamResult(System.out);
+		transformer.transform(source, consoleResult);
 	}
 
 	public static boolean menu() throws SAXException, IOException, TransformerException {
 		System.out.println("\n-- PROGRAMA DE CONTROL DEL ESTEVE TERRADAS\nQUE QUIERES HACER: \n1-INTRODUCIR ALUMNO"
-				+ "\n2-ELIMINAR ALUMNO\n3-CREAR CURSO\n4-CREAR TUTOR\n5-SALIR");
+				+ "\n2-ELIMINAR ALUMNO\n3-MOSTRAR CURSOS\n4-SALIR");
 		if (sc.hasNextInt()) {
 			opcion = sc.nextInt();
 			if (opcion == 1) {
 				System.out.println("Sobre que curso quieres crear el alumno?");
-				mostrarCursos();
-				String curso=sc.next();
-				try {
-					checkCurso(curso);
-					System.out.println("Introduce el nombre del alumno");
-					String aux=sc.next();
-					if(!aux.isEmpty()) {
-						crearAlumno(aux,curso);
-					}
-					else {
-						System.out.println("Nombre vacío");
-					}
-				}
-				catch(Exception e){
+				String curso = sc.next();
+				sc = new Scanner(System.in);
+
+				if (checkCurso(curso) == false) {
 					System.out.println("Este curso no existe");
-				}
-				
-			} else if (opcion == 2) {
-				System.out.println("Sobre que curso quieres eliminar el alumno?");
-				mostrarCursos();
-				String aux=sc.next();
-				if(!aux.isEmpty()) {
-					System.out.println("Introduce el nombre del alumno a eliminar");
-					String aux2=sc.next();
-					if(!aux2.isEmpty()) {
-						eliminarAlumno(aux2, aux);
-					}
-					else {
+				} else {
+					System.out.println("Introduce el nombre del alumno");
+					String aux2 = sc.nextLine();
+					if (!aux2.isEmpty()) {
+						crearAlumno(aux2, curso);
+					} else {
 						System.out.println("Nombre vacío");
 					}
 				}
-				else {
+
+			} else if (opcion == 2) {
+				System.out.println("Introduce el nombre del alumno a eliminar");
+				String aux = sc.next();
+				if (!aux.isEmpty()) {
+					eliminarAlumno(aux);
+				} else {
 					System.out.println("Nombre vacío");
 				}
-				
 
 			} else if (opcion == 3) {
-				System.out.println("Introduce el nombre del curso a crear");
-				String aux=sc.next();
-				if(!aux.isEmpty()) {
-					crearCurso(aux);
-				}
-				else {
-					System.out.println("Nombre vacío");
-				}
-			} else if (opcion == 4) {
-				System.out.println("Sobre que curso quieres crear el tutor?");
 				mostrarCursos();
-				System.out.println("Introduce el nombre del tutor");
-				String aux=sc.next();
-				if(!aux.isEmpty()) {
-					crearCurso(aux);
-				}
-				else {
-					System.out.println("Nombre vacío");
-				}
-
-			} else if (opcion == 5) {
+			} else if (opcion == 4) {
 				System.out.println("HASTA LUEGO");
 				generarXml();
 				return true;
@@ -168,15 +133,15 @@ public class Main {
 			}
 		}
 	}
+
 	public static boolean checkCurso(String curso) {
 		doc.getDocumentElement().normalize();
 		NodeList nList = doc.getElementsByTagName("curs");
 		for (int temp = 0; temp < nList.getLength(); temp++) {
 			Node nNode = nList.item(temp);
-
 			if (nNode.getNodeType() == Node.ELEMENT_NODE) {
 				Element eElement = (Element) nNode;
-				if(eElement.getAttribute("id").equals(curso)) {
+				if (eElement.getAttribute("id").toLowerCase().equals(curso.toLowerCase())) {
 					return true;
 				}
 			}
@@ -184,42 +149,39 @@ public class Main {
 		return false;
 	}
 
-	
-
-	public static void crearTutor(String nombre,String nombreCurso) {
-		Element tutor = doc.createElement("tutor");
-		Element curs = doc.getDocumentElement();
-		Element cursos = doc.getDocumentElement();
-		tutor.appendChild(doc.createTextNode(nombre));
-		curs.appendChild(tutor);
-	}
-
-	public static void crearCurso(String curso) {
-		Element alumnes=doc.createElement("alumnes");
-		Element curs=doc.createElement("curs");
-		Attr id = doc.createAttribute("id");
-		id.setValue(curso);
-		curs.setAttributeNode(id);
-		Element cursos=doc.getDocumentElement();
-		curs.appendChild(alumnes);
-		cursos.appendChild(curs);
-	}
-
-	public static void crearAlumno(String nombreAlumno,String nombreCurso) {
-		Element alumne = doc.createElement("alumne");
-		alumne.appendChild(doc.createTextNode(nombreAlumno));
-		Element alumnes=doc.getDocumentElement();
-		alumnes.appendChild(alumne);
-		Element curs = doc.getDocumentElement();
-		curs.appendChild(alumnes);
+	public static void crearAlumno(String nombreAlumno, String nombreCurso) {
+		doc.getDocumentElement().normalize();
 		NodeList nList = doc.getElementsByTagName("curs");
-
+		for (int temp = 0; temp < nList.getLength(); temp++) {
+			Node nNode = nList.item(temp);
+			if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+				Element eElement = (Element) nNode;
+				if (eElement.getAttribute("id").toLowerCase().equals(nombreCurso.toLowerCase())) {
+					Element alumne = doc.createElement("alumne");
+					alumne.appendChild(doc.createTextNode(nombreAlumno));
+					Element alumnes = doc.getDocumentElement();
+					alumnes.appendChild(alumne);
+					eElement.appendChild(alumnes);
+				}
+				
+			}
+		}
 	}
 
-	public static void eliminarAlumno(String nombre,String nombreCurso) {
+	public static void eliminarAlumno(String nombre) {
 		Element alumne = doc.getDocumentElement();
-	    Node parent = alumne.getParentNode();
-	    parent.removeChild(alumne);
+		Node parent = alumne.getParentNode();
+		doc.getDocumentElement().normalize();
+		NodeList nList = doc.getElementsByTagName("alumne");
+		for (int temp = 0; temp < nList.getLength(); temp++) {
+			Node nNode = nList.item(temp);
+			if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+				Element eElement = (Element) nNode;
+				if (eElement.getTextContent().toLowerCase().equals(nombre.toLowerCase())) {
+					eElement.getParentNode().removeChild(eElement);
+				}
+			}
+		}
 
 	}
 
