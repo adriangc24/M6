@@ -37,7 +37,7 @@ public class Main {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		dBuilder = factory.newDocumentBuilder();
 		try {
-			//doc = dBuilder.parse(file);
+			doc = dBuilder.parse(file);
 			while (true) {
 				if (menu() == true) {
 					break;
@@ -45,6 +45,7 @@ public class Main {
 			}
 		} catch (Exception e) {
 			System.out.println("Exception");
+			System.out.println("Creando documento");
 			doc = dBuilder.newDocument();
 			Element cursos = doc.createElement("cursos");
 			doc.appendChild(cursos);
