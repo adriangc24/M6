@@ -33,7 +33,7 @@ public class Main {
 	static DocumentBuilder dBuilder;
 
 	public static void main(String[] args) throws ParserConfigurationException, IOException, TransformerException {
-
+		System.out.println(file.getAbsolutePath());
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		dBuilder = factory.newDocumentBuilder();
 		try {
@@ -45,10 +45,6 @@ public class Main {
 			}
 		} catch (Exception e) {
 			System.out.println("Exception");
-			System.out.println("Creando documento");
-			doc = dBuilder.newDocument();
-			Element cursos = doc.createElement("cursos");
-			doc.appendChild(cursos);
 			while (true) {
 				try {
 					if (menu() == true) {
@@ -63,7 +59,7 @@ public class Main {
 
 	}
 
-	public static void generarXml() throws TransformerException, IOException {
+	public static void imprimirXml() throws TransformerException, IOException {
 		TransformerFactory factoria = TransformerFactory.newInstance();
 		Transformer transformer = factoria.newTransformer();
 
@@ -73,6 +69,14 @@ public class Main {
 		// Output to console for testing
 		StreamResult consoleResult = new StreamResult(System.out);
 		transformer.transform(source, consoleResult);
+	}
+	public static void generarXml() throws TransformerException, IOException {
+		TransformerFactory factoria = TransformerFactory.newInstance();
+		Transformer transformer = factoria.newTransformer();
+
+		Source source = new DOMSource(doc);
+		StreamResult result = new StreamResult(file);
+		transformer.transform(source, result);
 	}
 
 	public static boolean menu() throws SAXException, IOException, TransformerException {
@@ -85,32 +89,43 @@ public class Main {
 				String curso = sc.next();
 				sc = new Scanner(System.in);
 
-				if (checkCurso(curso) == false) {
+				if (checkCurso(curso.toLowerCase()) == false) {
 					System.out.println("Este curso no existe");
 				} else {
 					System.out.println("Introduce el nombre del alumno");
 					String aux2 = sc.nextLine();
 					if (!aux2.isEmpty()) {
-						crearAlumno(aux2, curso);
+						crearAlumno(aux2, curso.toLowerCase());
 					} else {
 						System.out.println("Nombre vacío");
 					}
 				}
+				generarXml();
 
 			} else if (opcion == 2) {
-				System.out.println("Introduce el nombre del alumno a eliminar");
-				String aux = sc.next();
-				if (!aux.isEmpty()) {
-					eliminarAlumno(aux);
+				System.out.println("Sobre que curso quieres eliminar el alumno?");
+				String curso = sc.next();
+				sc = new Scanner(System.in);
+
+				if (checkCurso(curso.toLowerCase()) == false) {
+					System.out.println("Este curso no existe");
 				} else {
-					System.out.println("Nombre vacío");
+					System.out.println("Introduce el nombre del alumno");
+					String aux2 = sc.nextLine();
+					if (!aux2.isEmpty()) {
+						eliminarAlumno(aux2, curso.toLowerCase());
+					} else {
+						System.out.println("Nombre vacío");
+					}
 				}
+				generarXml();
 
 			} else if (opcion == 3) {
 				mostrarCursos();
 			} else if (opcion == 4) {
 				System.out.println("HASTA LUEGO");
 				generarXml();
+				imprimirXml();
 				return true;
 			} else {
 				System.out.println("Introduce una opcion correcta");
@@ -122,8 +137,11 @@ public class Main {
 	}
 
 	public static void mostrarCursos() throws SAXException, IOException {
+		System.out.println("-- Metodo mostrarCursos");
+		// doc = dBuilder.parse(file);
 		doc.getDocumentElement().normalize();
 		NodeList nList = doc.getElementsByTagName("curs");
+		System.out.println("numero de cursos: " + nList.getLength());
 		for (int temp = 0; temp < nList.getLength(); temp++) {
 			Node nNode = nList.item(temp);
 
@@ -137,51 +155,60 @@ public class Main {
 	}
 
 	public static boolean checkCurso(String curso) {
+		System.out.println("-- Metodo checkCurso");
+
 		doc.getDocumentElement().normalize();
 		NodeList nList = doc.getElementsByTagName("curs");
-		for (int temp = 0; temp < nList.getLength(); temp++) {
-			Node nNode = nList.item(temp);
-			if (nNode.getNodeType() == Node.ELEMENT_NODE) {
-				Element eElement = (Element) nNode;
-				if (eElement.getAttribute("id").toLowerCase().equals(curso.toLowerCase())) {
-					return true;
-				}
+		for (int i = 0; i < nList.getLength(); i++) {
+			Node nNode = nList.item(i);
+			Element eElement = (Element) nNode;
+			if (eElement.getAttribute("id").toLowerCase().equals(curso)) {
+				return true;
 			}
 		}
 		return false;
 	}
 
 	public static void crearAlumno(String nombreAlumno, String nombreCurso) {
+		System.out.println("-- Metodo crearAlumno");
+
 		doc.getDocumentElement().normalize();
 		NodeList nList = doc.getElementsByTagName("curs");
-		for (int temp = 0; temp < nList.getLength(); temp++) {
-			Node nNode = nList.item(temp);
-			if (nNode.getNodeType() == Node.ELEMENT_NODE) {
-				Element eElement = (Element) nNode;
-				if (eElement.getAttribute("id").toLowerCase().equals(nombreCurso.toLowerCase())) {
-					Element alumne = doc.createElement("alumne");
-					alumne.appendChild(doc.createTextNode(nombreAlumno));
-					Element alumnes = doc.getDocumentElement();
-					alumnes.appendChild(alumne);
-					eElement.appendChild(alumnes);
-				}
-				
+		for (int i = 0; i < nList.getLength(); i++) {
+			Element element = (Element) nList.item(i);
+			if (element.getAttribute("id").toLowerCase().equals(nombreCurso)) {
+				// Si existeix el curs demanat, guardem a una NodeList tots els nodes alumnes
+				NodeList nAlumnes = doc.getElementsByTagName("alumnes");
+				// Creem i afegim el alumne nou al node de alumnes del curs que convingui
+				Element alumne = doc.createElement("alumne");
+				alumne.appendChild(doc.createTextNode(nombreAlumno));
+				nAlumnes.item(i).appendChild(alumne);
 			}
 		}
 	}
 
-	public static void eliminarAlumno(String nombre) {
-		Element alumne = doc.getDocumentElement();
-		Node parent = alumne.getParentNode();
+	public static void eliminarAlumno(String nombreAlumno, String nombreCurso) {
+		System.out.println("-- Metodo eliminarAlumno");
+
 		doc.getDocumentElement().normalize();
-		NodeList nList = doc.getElementsByTagName("alumne");
-		for (int temp = 0; temp < nList.getLength(); temp++) {
-			Node nNode = nList.item(temp);
-			if (nNode.getNodeType() == Node.ELEMENT_NODE) {
-				Element eElement = (Element) nNode;
-				if (eElement.getTextContent().toLowerCase().equals(nombre.toLowerCase())) {
-					eElement.getParentNode().removeChild(eElement);
+		NodeList nList = doc.getElementsByTagName("curs");
+
+		// Busquem a la llista un curs que sigui el mateix que el demanat
+		for (int i = 0; i < nList.getLength(); i++) {
+			Element element = (Element) nList.item(i);
+			if (element.getAttribute("id").toLowerCase().equals(nombreCurso)) {
+				// Guardem els alumnes a una nodelist
+				NodeList alumnes = doc.getElementsByTagName("alumne");
+				// Busquem a la nodelist de alumnes un alumne que tingui el mateix nom que el
+				// demanat
+				for (int j = 0; j < alumnes.getLength(); j++) {
+					if (alumnes.item(j).getTextContent().toLowerCase().equals(nombreAlumno.toLowerCase())) {
+						// Esborra el alumne
+						alumnes.item(j).getParentNode().removeChild(alumnes.item(j));
+						break;
+					}
 				}
+				break;
 			}
 		}
 

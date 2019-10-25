@@ -1,6 +1,4 @@
-<?xml version="1.0" encoding="ISO-8859-15"?>
-<!DOCTYPE cursos SYSTEM "pt3.dtd">
-<cursos>
+<?xml version="1.0" encoding="ISO-8859-15" standalone="no"?><cursos>
 	<curs id="AMS2">	
 		<tutor>LARA,Francesc</tutor>
 		<alumnes>
@@ -26,7 +24,8 @@
 			<alumne>RODRIGUEZ, Alex</alumne>
 			<alumne>SANCHEZ, Jose</alumne>
 			<alumne>SANCHEZ, Eric</alumne>
-		</alumnes>
+		<alumne>pepitogrillo</alumne><alumne>
+	</alumnes>
 		<moduls>
 			<modul id="M06">
 				<titol>Acces a dades</titol>
