@@ -29,6 +29,7 @@ public class Main {
 	static Scanner sc = new Scanner(System.in);
 	static int opcion;
 	static Document doc;
+	// Cogemos el fichero de ejemplo :
 	static File file = new File("cursosexemple.xml");
 	static DocumentBuilder dBuilder;
 
