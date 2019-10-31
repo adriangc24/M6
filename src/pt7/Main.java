@@ -19,6 +19,9 @@ public class Main {
 	static PreparedStatement ps;
 	static int id;
 	static String cod_soc;
+	static int cod;
+	static boolean encontrado = false;
+	static String sino;
 
 	public static void main(String[] args) throws SQLException {
 
@@ -34,6 +37,14 @@ public class Main {
 			conn.close();
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
+		}
+	}
+	public static void imprimirSocios() throws SQLException {
+		ResultSet rs = st.executeQuery("select * from socio");
+		while (rs.next()) {
+			Object o = rs.getObject("cod_soc")+" | "+rs.getObject("nombre")+" | "+rs.getObject("apellidos")+" | "+rs.getObject("cuota");
+			System.out.println(o.toString());
+
 		}
 	}
 
@@ -131,9 +142,91 @@ public class Main {
 										+ socio.getFechaAlta() + "'" + "," + socio.getCuota() + ")");
 						break;
 					case 2:
+						imprimirSocios();
+						encontrado = false;
+						while (true) {
+							sc = new Scanner(System.in);
+							System.out.println("Introduce el codigo de socio a modificar cuota");
+							if (sc.hasNextInt()) {
+								cod = sc.nextInt();
+								rs = st.executeQuery("select * from socio");
+								while (rs.next()) {
+									Object o = rs.getObject("cod_soc");
+									id = Integer.valueOf(o.toString());
+									if (id == cod) {
+										encontrado = true;
+										break;
+									}
+								}
+								if (encontrado) {
+									while (true) {
+										sc = new Scanner(System.in);
+										System.out.println("Introduce la cuota");
+										if (sc.hasNextInt()) {
+											cuota = sc.nextInt();
+											st.executeUpdate(
+													"update socio set cuota= " + cuota + " where cod_soc= " + cod);
+											break;
+										} else {
+											System.out.println("Cuota incorrecta, formato : 1234");
+										}
+									}
+									break;
+								} else {
+									System.out.println("Este codigo de socio no existe");
+								}
 
+							} else {
+								System.out.println("Introduce numero de socio ex : 9");
+							}
+
+						}
+						break;
 					case 3:
+						imprimirSocios();
+						encontrado = false;
+						while (true) {
+							sc = new Scanner(System.in);
+							System.out.println("Introduce el numero de socio a eliminar");
+							if (sc.hasNextInt()) {
+								cod = sc.nextInt();
+								rs = st.executeQuery("select * from socio");
+								while (rs.next()) {
+									Object o = rs.getObject("cod_soc");
+									id = Integer.valueOf(o.toString());
+									if (id == cod) {
+										encontrado = true;
+										break;
+									}
+								}
+								if (encontrado) {
+									while (true) {
+										sc = new Scanner(System.in);
+										System.out.println("Seguro que quieres eliminar a: "+rs.getObject("nombre").toString()+" "+rs.getObject("apellidos").toString()+"\nINTRODUCE UNA OPCION: ( S/N )");
+										if(sc.hasNextLine()) {
+											sino=sc.nextLine();
+											if(sino.equalsIgnoreCase("s")) {
+												st.executeUpdate("delete from socio where cod_soc="+rs.getObject("cod_soc").toString());
+												System.out.println("Socio Borrado");
+											}
+											else if(sino.equalsIgnoreCase("n")) {
+												System.out.println("Socio no eliminado");
+											}
+										}
+										
+										break;
 
+									}
+									break;
+								} else {
+									System.out.println("Este codigo de socio no existe");
+								}
+
+							} else {
+								System.out.println("Introduce numero de socio ex : 9");
+							}
+
+						}
 					case 4:
 						System.out.println("Hasta luego");
 						break;
